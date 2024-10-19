@@ -24,6 +24,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -344,6 +345,17 @@ func (b *Builder) Build() ([]*unstructured.Unstructured, error) {
 			}
 		}
 		objects = append(objects, objectsToAdd...)
+	}
+
+	// Check for helm releases
+	for _, obj := range objects {
+		if isHelmRelease(obj) {
+			hr, err := toHelmRelease(obj)
+			if err != nil {
+				return nil, err
+			}
+			log.Printf("GetValues: %v", hr.GetValues())
+		}
 	}
 
 	return objects, nil
